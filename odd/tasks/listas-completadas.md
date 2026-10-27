@@ -25,7 +25,7 @@ Make the "Listas" (categories) and "Completadas" views work with real data inste
   - "This week" count and Mon–Sun strip from `completedAt` (current week, local time); history sorted by completion date desc showing the completion date; legacy tasks without `completedAt` fall back to `date`.
   - **Checks**: `npm run build`.
 
-- [ ] **T3: Listas category detail**
+- [x] **T3: Listas category detail**
   - **Route**: delegated direct (writer)
   - Click a category card opens its task list (pending first, then completed) with toggle, task detail, back button, and "new task" preselecting the category.
   - **Checks**: `npm run build`.
@@ -33,6 +33,8 @@ Make the "Listas" (categories) and "Completadas" views work with real data inste
 ## Progress
 - Branch created.
 - T1 done: commit bdebf48 (hash recorded in the following commit, since a commit cannot contain its own hash).
+- T2 done: commit 218ad58
+- T3 done: commit recorded in a follow-up docs commit.
 
 ## Next step
 Delegate T1 to T3 to one writer; user runs the Supabase SQL.

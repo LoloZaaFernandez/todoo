@@ -35,6 +35,7 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isNewTaskOpen, setIsNewTaskOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [newTaskCategory, setNewTaskCategory] = useState<string | undefined>(undefined);
 
   // Check Supabase session on mount
   useEffect(() => {
@@ -273,7 +274,17 @@ export function App() {
               onOpenNewTask={() => setIsNewTaskOpen(true)}
             />
           )}
-          {currentView === 'listas' && <ListasView tasks={filteredTasks} />}
+          {currentView === 'listas' && (
+            <ListasView
+              tasks={filteredTasks}
+              onToggleTask={handleToggleTask}
+              onSelectTask={setSelectedTask}
+              onOpenNewTask={(category) => {
+                setNewTaskCategory(category);
+                setIsNewTaskOpen(true);
+              }}
+            />
+          )}
           {currentView === 'completadas' && (
             <CompletadasView
               tasks={filteredTasks}
@@ -286,8 +297,12 @@ export function App() {
 
       <NewTaskModal
         isOpen={isNewTaskOpen}
-        onClose={() => setIsNewTaskOpen(false)}
+        onClose={() => {
+          setIsNewTaskOpen(false);
+          setNewTaskCategory(undefined);
+        }}
         onAddTask={handleAddTask}
+        defaultCategory={newTaskCategory}
       />
 
       <TaskDetailModal

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Task, Priority } from '../types';
 import { localDateString } from '../notifications';
 import { X, Calendar, Clock, Flag, CheckSquare } from 'lucide-react';
@@ -7,14 +7,20 @@ interface NewTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddTask: (task: Omit<Task, 'id' | 'completed' | 'subtasks'>) => void;
+  defaultCategory?: string;
 }
 
-export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onAddTask }) => {
+export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onAddTask, defaultCategory }) => {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState(localDateString());
   const [time, setTime] = useState('');
   const [priority, setPriority] = useState<Priority>('media');
-  const [category, setCategory] = useState('Personal');
+  const [category, setCategory] = useState(defaultCategory || 'Personal');
+
+  // Preselect the requested category each time the modal opens.
+  useEffect(() => {
+    if (isOpen) setCategory(defaultCategory || 'Personal');
+  }, [isOpen, defaultCategory]);
 
   if (!isOpen) return null;
 
