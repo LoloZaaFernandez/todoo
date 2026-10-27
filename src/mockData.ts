@@ -25,6 +25,7 @@ export const initialTasks: Task[] = [
     notes: 'Ver opciones de vuelo y alojamiento. Revisar presupuesto.',
     repeat: 'Todos los días',
     completed: true,
+    completedAt: new Date().toISOString(),
     category: 'Salud'
   },
   {
@@ -36,6 +37,7 @@ export const initialTasks: Task[] = [
     subtasks: [],
     notes: 'Atender pendientes urgentes del cliente A.',
     completed: true,
+    completedAt: new Date().toISOString(),
     category: 'Trabajo'
   },
   {

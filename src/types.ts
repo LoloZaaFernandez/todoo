@@ -4,6 +4,7 @@ export interface Subtask {
   id: string;
   title: string;
   completed: boolean;
+  completedAt?: string; // ISO timestamp, set when the task is completed
 }
 
 export interface Task {
@@ -16,6 +17,7 @@ export interface Task {
   notes?: string;
   repeat?: string;
   completed: boolean;
+  completedAt?: string; // ISO timestamp, set when the task is completed
   category?: string;
 }
 

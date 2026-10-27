@@ -81,6 +81,7 @@ export function App() {
           notes: row.notes || '',
           repeat: row.repeat || '',
           completed: row.completed,
+          completedAt: row.completed_at || undefined,
           category: row.category || 'Personal'
         }));
         setTasks(cloudTasks);
@@ -115,12 +116,17 @@ export function App() {
     if (!task) return;
     const updatedCompleted = !task.completed;
 
+    const completedAt = updatedCompleted ? new Date().toISOString() : undefined;
+
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, completed: updatedCompleted } : t))
+      prev.map((t) => (t.id === taskId ? { ...t, completed: updatedCompleted, completedAt } : t))
     );
 
     if (session && isSupabaseConfigured) {
-      await supabase.from('tasks').update({ completed: updatedCompleted }).eq('id', taskId);
+      await supabase
+        .from('tasks')
+        .update({ completed: updatedCompleted, completed_at: completedAt ?? null })
+        .eq('id', taskId);
     }
   };
 
@@ -148,6 +154,7 @@ export function App() {
           notes: newTask.notes,
           repeat: newTask.repeat,
           completed: newTask.completed,
+          completed_at: newTask.completedAt ?? null,
           category: newTask.category
         }
       ]);
@@ -170,6 +177,7 @@ export function App() {
         notes: updatedTask.notes,
         repeat: updatedTask.repeat,
         completed: updatedTask.completed,
+        completed_at: updatedTask.completedAt ?? null,
         category: updatedTask.category
       }).eq('id', updatedTask.id);
     }
