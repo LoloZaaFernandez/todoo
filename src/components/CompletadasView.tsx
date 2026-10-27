@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Task } from '../types';
 import { CheckCircle2, Trophy, CheckCircle } from 'lucide-react';
+import { localDateString } from '../notifications';
 
 interface CompletadasViewProps {
   tasks: Task[];
@@ -13,17 +14,46 @@ export const CompletadasView: React.FC<CompletadasViewProps> = ({
   onToggleTask,
   onSelectTask
 }) => {
-  const completedTasks = tasks.filter((t) => t.completed);
+  // Local date (YYYY-MM-DD) a task was completed on; legacy tasks fall back to their due date.
+  const completionDate = (t: Task): string =>
+    t.completedAt ? localDateString(new Date(t.completedAt)) : t.date;
+  const completionTime = (t: Task): number =>
+    t.completedAt ? new Date(t.completedAt).getTime() : new Date(`${t.date}T00:00:00`).getTime();
 
-  const daysOfWeek = [
-    { name: 'Lun', completed: true },
-    { name: 'Mar', completed: true },
-    { name: 'Mié', completed: true },
-    { name: 'Jue', completed: true },
-    { name: 'Vie', completed: true },
-    { name: 'Sáb', completed: false },
-    { name: 'Dom', completed: false }
-  ];
+  const completedTasks = tasks
+    .filter((t) => t.completed)
+    .sort((a, b) => completionTime(b) - completionTime(a));
+
+  // Current week, Monday first, in local time.
+  const now = new Date();
+  const todayStr = localDateString(now);
+  const mondayOffset = (now.getDay() + 6) % 7;
+  const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((name, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset + i);
+    return { name, dateStr: localDateString(d) };
+  });
+  const weekStart = weekDays[0].dateStr;
+  const weekEnd = weekDays[6].dateStr;
+
+  // Only tasks with a real completion timestamp count toward weekly progress.
+  const weekTasks = completedTasks.filter((t) => {
+    if (!t.completedAt) return false;
+    const d = completionDate(t);
+    return d >= weekStart && d <= weekEnd;
+  });
+  const doneDates = new Set(weekTasks.map(completionDate));
+
+  const daysOfWeek = weekDays.map((day) => ({
+    name: day.name,
+    completed: doneDates.has(day.dateStr),
+    isToday: day.dateStr === todayStr,
+    isFuture: day.dateStr > todayStr
+  }));
+
+  const formatCompletion = (t: Task): string => {
+    const d = t.completedAt ? new Date(t.completedAt) : new Date(`${t.date}T00:00:00`);
+    return d.toLocaleDateString('es-PE', { day: 'numeric', month: 'short' }).replace('.', '');
+  };
 
   return (
     <div className="p-8 max-w-4xl mx-auto w-full space-y-8 pb-24">
@@ -36,12 +66,17 @@ export const CompletadasView: React.FC<CompletadasViewProps> = ({
         </div>
         <h2 className="text-2xl font-bold text-slate-900 mb-1">¡Muy bien!</h2>
         <p className="text-slate-600 text-sm font-medium">
-          Completaste {completedTasks.length} tareas esta semana.
+          Completaste {weekTasks.length} {weekTasks.length === 1 ? 'tarea' : 'tareas'} esta semana.
         </p>
 
         <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-indigo-100/60">
           {daysOfWeek.map((day) => (
-            <div key={day.name} className="flex flex-col items-center gap-2">
+            <div
+              key={day.name}
+              className={`flex flex-col items-center gap-2 px-1.5 py-1 rounded-xl ${
+                day.isToday ? 'bg-indigo-100/60 ring-1 ring-indigo-200' : ''
+              } ${day.isFuture ? 'opacity-60' : ''}`}
+            >
               <div
                 className={`w-9 h-9 rounded-xl flex items-center justify-center ${
                   day.completed ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200' : 'bg-slate-100 text-slate-400'
@@ -90,7 +125,7 @@ export const CompletadasView: React.FC<CompletadasViewProps> = ({
                 </p>
               </div>
               <span className="text-xs font-medium text-slate-400 px-2.5 py-1 bg-slate-100 rounded-lg">
-                {task.date}
+                {formatCompletion(task)}
               </span>
             </div>
           ))

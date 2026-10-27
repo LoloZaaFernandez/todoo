@@ -20,7 +20,7 @@ Make the "Listas" (categories) and "Completadas" views work with real data inste
   - Add `completedAt?: string` (ISO) to `Task`; set on complete, clear on uncomplete; map `completed_at` in fetch/insert/update; mock completed tasks get a completedAt.
   - **Checks**: `npm run build`.
 
-- [ ] **T2: Completadas with real data**
+- [x] **T2: Completadas with real data**
   - **Route**: delegated direct (writer)
   - "This week" count and Mon–Sun strip from `completedAt` (current week, local time); history sorted by completion date desc showing the completion date; legacy tasks without `completedAt` fall back to `date`.
   - **Checks**: `npm run build`.
@@ -31,7 +31,8 @@ Make the "Listas" (categories) and "Completadas" views work with real data inste
   - **Checks**: `npm run build`.
 
 ## Progress
-- Branch created. Nothing implemented yet.
+- Branch created.
+- T1 done: commit bdebf48 (hash recorded in the following commit, since a commit cannot contain its own hash).
 
 ## Next step
 Delegate T1 to T3 to one writer; user runs the Supabase SQL.
