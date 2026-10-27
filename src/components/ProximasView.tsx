@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Task } from '../types';
+import { localDateString } from '../notifications';
 import { Calendar as CalendarIcon, CheckCircle, Circle, Clock, Flag, Search } from 'lucide-react';
 
 interface ProximasViewProps {
@@ -13,7 +14,8 @@ export const ProximasView: React.FC<ProximasViewProps> = ({
   onToggleTask,
   onSelectTask
 }) => {
-  const upcomingTasks = tasks.filter((t) => t.date > '2025-05-12');
+  const todayStr = localDateString();
+  const upcomingTasks = tasks.filter((t) => t.date > todayStr);
 
   const grouped: { [date: string]: Task[] } = {};
   upcomingTasks.forEach((t) => {
@@ -22,9 +24,13 @@ export const ProximasView: React.FC<ProximasViewProps> = ({
   });
 
   const formatDateHeader = (dateStr: string) => {
-    if (dateStr === '2025-05-13') return 'Mañana · Martes, 13 de mayo';
-    if (dateStr === '2025-05-14') return 'Miércoles, 14 de mayo';
-    return `Fecha: ${dateStr}`;
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    const label = new Intl.DateTimeFormat('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+    const capitalized = label.charAt(0).toUpperCase() + label.slice(1);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return dateStr === localDateString(tomorrow) ? `Mañana · ${capitalized}` : capitalized;
   };
 
   return (

@@ -1,12 +1,18 @@
 import React from 'react';
-import { Search, Bell, User, CheckSquare } from 'lucide-react';
+import { Search, Bell, BellOff, User, CheckSquare, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   searchQuery: string;
   onSearchChange: (q: string) => void;
+  userEmail?: string | null;
+  userName?: string | null;
+  avatarUrl?: string | null;
+  onSignOut?: () => void;
+  notifPermission?: 'granted' | 'denied' | 'default' | 'unsupported';
+  onEnableNotifications?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
+export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange, userEmail, userName, avatarUrl, onSignOut, notifPermission, onEnableNotifications }) => {
   return (
     <header className="h-16 md:h-18 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between shrink-0">
       {/* Mobile Brand / Logo */}
@@ -31,19 +37,50 @@ export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) =
 
       {/* Right Actions / Profile */}
       <div className="flex items-center gap-3">
-        <button className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-colors relative cursor-pointer">
-          <Bell className="w-4 h-4 md:w-5 md:h-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-600 rounded-full"></span>
-        </button>
+        {notifPermission !== 'unsupported' && (
+          <button
+            onClick={notifPermission === 'default' ? onEnableNotifications : undefined}
+            title={
+              notifPermission === 'granted'
+                ? 'Recordatorios activados'
+                : notifPermission === 'denied'
+                  ? 'Bloqueadas: habilítalas en los permisos del navegador'
+                  : 'Activar recordatorios'
+            }
+            className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 transition-colors relative cursor-pointer"
+          >
+            {notifPermission === 'denied' ? (
+              <BellOff className="w-4 h-4 md:w-5 md:h-5" />
+            ) : (
+              <Bell className="w-4 h-4 md:w-5 md:h-5" />
+            )}
+            {notifPermission === 'default' && (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-600 rounded-full"></span>
+            )}
+          </button>
+        )}
         <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
-          <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center shadow-inner">
-            <User className="w-4 h-4 md:w-5 md:h-5" />
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center shadow-inner overflow-hidden">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={userName || 'Perfil'} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+            ) : (
+              <User className="w-4 h-4 md:w-5 md:h-5" />
+            )}
           </div>
           <div className="hidden lg:block text-left">
-            <p className="text-sm font-semibold text-slate-800">Mi Espacio</p>
-            <p className="text-xs text-slate-500">Plan Personal</p>
+            <p className="text-sm font-semibold text-slate-800">{userName || 'Mi Espacio'}</p>
+            <p className="text-xs text-slate-500 max-w-40 truncate">{userEmail || 'Modo local'}</p>
           </div>
         </div>
+        {onSignOut && (
+          <button
+            onClick={onSignOut}
+            title="Cerrar sesión"
+            className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-slate-50 hover:bg-rose-50 border border-slate-200 flex items-center justify-center text-slate-600 hover:text-rose-600 transition-colors cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+          </button>
+        )}
       </div>
     </header>
   );

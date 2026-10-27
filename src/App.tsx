@@ -12,10 +12,12 @@ import { CompletadasView } from './components/CompletadasView';
 import { NewTaskModal } from './components/NewTaskModal';
 import { TaskDetailModal } from './components/TaskDetailModal';
 import { AuthModal } from './components/AuthModal';
+import { webNotifier, takeDueTasks, localDateString } from './notifications';
 
 export function App() {
   const [session, setSession] = useState<any>(null);
   const [isGuest, setIsGuest] = useState(false);
+  const [authLoading, setAuthLoading] = useState(isSupabaseConfigured);
 
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('todoo_tasks');
@@ -40,6 +42,7 @@ export function App() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setAuthLoading(false);
     });
 
     const {
@@ -90,6 +93,22 @@ export function App() {
   useEffect(() => {
     localStorage.setItem('todoo_tasks', JSON.stringify(tasks));
   }, [tasks]);
+
+  // Task reminders: check every 20s while the app is open
+  const [notifPermission, setNotifPermission] = useState(webNotifier.getPermission());
+
+  useEffect(() => {
+    if (notifPermission !== 'granted') return;
+    const check = () => takeDueTasks(tasks).forEach((t) => webNotifier.notify(t));
+    check();
+    const id = setInterval(check, 20_000);
+    return () => clearInterval(id);
+  }, [tasks, notifPermission]);
+
+  const handleEnableNotifications = async () => {
+    await webNotifier.requestPermission();
+    setNotifPermission(webNotifier.getPermission());
+  };
 
   const handleToggleTask = async (taskId: string) => {
     const task = tasks.find((t) => t.id === taskId);
@@ -172,14 +191,24 @@ export function App() {
       )
     : tasks;
 
-  const todayCount = tasks.filter((t) => t.date === '2025-05-12' && !t.completed).length;
+  const today = localDateString();
+  const todayCount = tasks.filter((t) => t.date === today && !t.completed).length;
   const completedCount = tasks.filter((t) => t.completed).length;
 
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden font-sans">
-      {isSupabaseConfigured && !session && !isGuest && (
+      {authLoading && (
+        <div className="fixed inset-0 z-50 bg-slate-100 flex items-center justify-center text-sm text-slate-500">
+          Cargando...
+        </div>
+      )}
+
+      {isSupabaseConfigured && !authLoading && !session && !isGuest && (
         <AuthModal
-          onSuccess={() => setSession(supabase.auth.getSession())}
+          onSuccess={async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setSession(session);
+          }}
           onContinueAsGuest={() => setIsGuest(true)}
         />
       )}
@@ -193,7 +222,24 @@ export function App() {
       />
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden pb-16 md:pb-0">
-        <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+        <Header
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          notifPermission={notifPermission}
+          onEnableNotifications={handleEnableNotifications}
+          userEmail={session?.user?.email}
+          userName={session?.user?.user_metadata?.full_name || session?.user?.user_metadata?.name}
+          avatarUrl={session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture}
+          onSignOut={
+            isSupabaseConfigured
+              ? async () => {
+                  await supabase.auth.signOut();
+                  setSession(null);
+                  setIsGuest(false);
+                }
+              : undefined
+          }
+        />
 
         <main className="flex-1 overflow-y-auto">
           {currentView === 'hoy' && (

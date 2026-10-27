@@ -1,11 +1,20 @@
 import type { Task } from './types';
+import { localDateString } from './notifications';
+
+// Sample dates are relative to the real current day.
+const dayOffset = (offset: number): string => {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return localDateString(d);
+};
+
 
 export const initialTasks: Task[] = [
-  // Hoy (May 12, 2025)
+  // Hoy
   {
     id: '1',
     title: 'Hacer ejercicio',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '07:00',
     priority: 'media',
     subtasks: [
@@ -21,7 +30,7 @@ export const initialTasks: Task[] = [
   {
     id: '2',
     title: 'Revisar correos',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '09:00',
     priority: 'baja',
     subtasks: [],
@@ -32,7 +41,7 @@ export const initialTasks: Task[] = [
   {
     id: '3',
     title: 'Planear la semana',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '10:00',
     priority: 'alta',
     subtasks: [
@@ -46,7 +55,7 @@ export const initialTasks: Task[] = [
   {
     id: '4',
     title: 'Comprar regalo',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '',
     priority: 'media',
     subtasks: [],
@@ -57,7 +66,7 @@ export const initialTasks: Task[] = [
   {
     id: '5',
     title: 'Estudiar 1 hora',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '17:00',
     priority: 'alta',
     subtasks: [],
@@ -68,7 +77,7 @@ export const initialTasks: Task[] = [
   {
     id: '6',
     title: 'Preparar la cena',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '',
     priority: 'baja',
     subtasks: [],
@@ -78,7 +87,7 @@ export const initialTasks: Task[] = [
   {
     id: '7',
     title: 'Leer 20 minutos',
-    date: '2025-05-12',
+    date: dayOffset(0),
     time: '',
     priority: 'baja',
     subtasks: [],
@@ -86,11 +95,11 @@ export const initialTasks: Task[] = [
     category: 'Personal'
   },
 
-  // Mañana (May 13, 2025)
+  // Mañana
   {
     id: '8',
     title: 'Llevar el coche al taller',
-    date: '2025-05-13',
+    date: dayOffset(1),
     time: '09:00',
     priority: 'alta',
     subtasks: [],
@@ -101,7 +110,7 @@ export const initialTasks: Task[] = [
   {
     id: '9',
     title: 'Reunión de trabajo',
-    date: '2025-05-13',
+    date: dayOffset(1),
     time: '11:00',
     priority: 'alta',
     subtasks: [],
@@ -112,7 +121,7 @@ export const initialTasks: Task[] = [
   {
     id: '10',
     title: 'Comprar víveres',
-    date: '2025-05-13',
+    date: dayOffset(1),
     time: '',
     priority: 'media',
     subtasks: [],
@@ -120,11 +129,11 @@ export const initialTasks: Task[] = [
     category: 'Personal'
   },
 
-  // Miércoles (May 14, 2025)
+  // Miércoles
   {
     id: '11',
     title: 'Estudiar para el examen',
-    date: '2025-05-14',
+    date: dayOffset(2),
     time: '10:00',
     priority: 'alta',
     subtasks: [],
@@ -134,7 +143,7 @@ export const initialTasks: Task[] = [
   {
     id: '12',
     title: 'Llamar a mamá',
-    date: '2025-05-14',
+    date: dayOffset(2),
     time: '',
     priority: 'media',
     subtasks: [],
@@ -144,7 +153,7 @@ export const initialTasks: Task[] = [
   {
     id: '13',
     title: 'Organizar escritorio',
-    date: '2025-05-14',
+    date: dayOffset(2),
     time: '16:00',
     priority: 'baja',
     subtasks: [],
@@ -152,11 +161,11 @@ export const initialTasks: Task[] = [
     category: 'Personal'
   },
 
-  // Esta semana (May 15-18, 2025)
+  // Esta semana
   {
     id: '14',
     title: 'Terminar presentación',
-    date: '2025-05-15',
+    date: dayOffset(3),
     time: '',
     priority: 'alta',
     subtasks: [],
@@ -166,7 +175,7 @@ export const initialTasks: Task[] = [
   {
     id: '15',
     title: 'Planear viaje',
-    date: '2025-05-16',
+    date: dayOffset(4),
     time: '',
     priority: 'media',
     subtasks: [
@@ -181,7 +190,7 @@ export const initialTasks: Task[] = [
   {
     id: '16',
     title: 'Revisar presupuesto',
-    date: '2025-05-16',
+    date: dayOffset(4),
     time: '',
     priority: 'media',
     subtasks: [],

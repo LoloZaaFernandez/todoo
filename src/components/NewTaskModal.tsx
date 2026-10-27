@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Task, Priority } from '../types';
+import { localDateString } from '../notifications';
 import { X, Calendar, Clock, Flag, CheckSquare } from 'lucide-react';
 
 interface NewTaskModalProps {
@@ -10,7 +11,7 @@ interface NewTaskModalProps {
 
 export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onAddTask }) => {
   const [title, setTitle] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(localDateString());
   const [time, setTime] = useState('');
   const [priority, setPriority] = useState<Priority>('media');
   const [category, setCategory] = useState('Personal');
@@ -39,7 +40,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onA
   const handleQuickDate = (daysAhead: number) => {
     const d = new Date();
     d.setDate(d.getDate() + daysAhead);
-    setDate(d.toISOString().split('T')[0]);
+    setDate(localDateString(d));
   };
 
   return (
@@ -82,7 +83,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onA
                 type="button"
                 onClick={() => handleQuickDate(0)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-                  date === new Date().toISOString().split('T')[0]
+                  date === localDateString()
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
@@ -96,7 +97,7 @@ export const NewTaskModal: React.FC<NewTaskModalProps> = ({ isOpen, onClose, onA
                   (() => {
                     const tomorrow = new Date();
                     tomorrow.setDate(tomorrow.getDate() + 1);
-                    return date === tomorrow.toISOString().split('T')[0];
+                    return date === localDateString(tomorrow);
                   })()
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Task } from '../types';
+import { localDateString } from '../notifications';
 import { ChevronLeft, ChevronRight, CheckCircle, Circle, Clock, Plus } from 'lucide-react';
 
 interface CalendarioViewProps {
@@ -15,14 +16,42 @@ export const CalendarioView: React.FC<CalendarioViewProps> = ({
   onSelectTask,
   onOpenNewTask
 }) => {
-  const [selectedDate, setSelectedDate] = useState('2025-05-12');
+  const todayStr = localDateString();
+  const [selectedDate, setSelectedDate] = useState(todayStr);
+  const [viewDate, setViewDate] = useState(() => {
+    const n = new Date();
+    return { year: n.getFullYear(), month: n.getMonth() };
+  });
 
-  const startDayOfWeek = 3; // Thursday (Lu=1, Ma=2, Mi=3, Ju=4...)
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const { year, month } = viewDate;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startDayOfWeek = new Date(year, month, 1).getDay() || 7; // Monday=1 ... Sunday=7
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const formatDayDate = (dayNum: number) => {
-    const d = dayNum < 10 ? `0${dayNum}` : `${dayNum}`;
-    return `2025-05-${d}`;
+  const formatDayDate = (dayNum: number) => localDateString(new Date(year, month, dayNum));
+
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  const monthTitle = capitalize(
+    new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' })
+      .format(new Date(year, month, 1))
+      .replace(' de ', ' ')
+  );
+  const [selY, selM, selD] = selectedDate.split('-').map(Number);
+  const selectedLabel = capitalize(
+    new Intl.DateTimeFormat('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }).format(
+      new Date(selY, selM - 1, selD)
+    )
+  );
+
+  const shiftMonth = (delta: number) => {
+    const d = new Date(year, month + delta, 1);
+    setViewDate({ year: d.getFullYear(), month: d.getMonth() });
+  };
+
+  const goToday = () => {
+    const n = new Date();
+    setViewDate({ year: n.getFullYear(), month: n.getMonth() });
+    setSelectedDate(localDateString(n));
   };
 
   const selectedDayTasks = tasks.filter((t) => t.date === selectedDate);
@@ -35,21 +64,21 @@ export const CalendarioView: React.FC<CalendarioViewProps> = ({
       <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6 space-y-6 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Mayo 2025</h2>
+            <h2 className="text-lg font-bold text-slate-900">{monthTitle}</h2>
             <p className="text-xs text-slate-500">Visualiza tus tareas en el mes</p>
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setSelectedDate('2025-05-12')}
+              onClick={goToday}
               className="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Hoy
             </button>
             <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-white">
-              <button className="p-2 hover:bg-slate-50 text-slate-600 border-r border-slate-200 cursor-pointer">
+              <button onClick={() => shiftMonth(-1)} className="p-2 hover:bg-slate-50 text-slate-600 border-r border-slate-200 cursor-pointer">
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button className="p-2 hover:bg-slate-50 text-slate-600 cursor-pointer">
+              <button onClick={() => shiftMonth(1)} className="p-2 hover:bg-slate-50 text-slate-600 cursor-pointer">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -73,7 +102,7 @@ export const CalendarioView: React.FC<CalendarioViewProps> = ({
             const dateStr = formatDayDate(dayNum);
             const dayTasks = tasks.filter((t) => t.date === dateStr);
             const isSelected = selectedDate === dateStr;
-            const isToday = dateStr === '2025-05-12';
+            const isToday = dateStr === todayStr;
 
             return (
               <div
@@ -125,7 +154,7 @@ export const CalendarioView: React.FC<CalendarioViewProps> = ({
               Detalle del día
             </h3>
             <p className="text-lg font-bold text-slate-900 mt-1">
-              {selectedDate === '2025-05-12' ? 'Lunes, 12 de mayo' : selectedDate}
+              {selectedLabel}
             </p>
             {selectedDayTasks.length > 0 && (
               <p className="text-xs text-slate-500 mt-1 font-medium">

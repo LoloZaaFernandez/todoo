@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Task } from '../types';
+import { localDateString } from '../notifications';
 import { Sun, CheckCircle, Circle, Clock, Plus, MoreHorizontal, Flag } from 'lucide-react';
 
 interface HoyViewProps {
@@ -15,7 +16,11 @@ export const HoyView: React.FC<HoyViewProps> = ({
   onSelectTask,
   onOpenNewTask
 }) => {
-  const todayStr = '2025-05-12';
+  const todayStr = localDateString();
+  const todayLabel = (() => {
+    const s = new Intl.DateTimeFormat('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  })();
   const todayTasks = tasks.filter((t) => t.date === todayStr);
 
   const completedCount = todayTasks.filter((t) => t.completed).length;
@@ -30,7 +35,7 @@ export const HoyView: React.FC<HoyViewProps> = ({
             <Sun className="w-5 h-5" />
             <span>Buenos días</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Lunes, 12 de mayo</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{todayLabel}</h1>
         </div>
 
         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4 min-w-[260px]">
