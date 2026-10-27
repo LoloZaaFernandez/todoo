@@ -34,7 +34,7 @@ Make the "Listas" (categories) and "Completadas" views work with real data inste
 - Branch created.
 - T1 done: commit bdebf48 (hash recorded in the following commit, since a commit cannot contain its own hash).
 - T2 done: commit 218ad58
-- T3 done: commit recorded in a follow-up docs commit.
+- T3 done: commit 6486b74
 
 ## Next step
 Delegate T1 to T3 to one writer; user runs the Supabase SQL.
